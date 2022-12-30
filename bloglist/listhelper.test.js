@@ -48,7 +48,7 @@ const listWithManyblogs = [
     url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
     likes: 2,
     __v: 0
-  }  
+  }
 ]
 
 test('dummy returns one', () => {
@@ -86,5 +86,16 @@ describe('favorite blog', () => {
   test('when list has many blogs, equals the favorite of that', () => {
     const result = listHelper.favoriteBlog(listWithManyblogs)
     expect(result).toEqual(listWithManyblogs[2])
+  })
+})
+
+describe('most blog', () => {
+
+  test('when list has many blogs, equals the most blogs of that', () => {
+    const result = listHelper.mostBlogs(listWithManyblogs)
+    expect(result).toEqual({
+      author: "Robert C. Martin",
+      blogs: 3
+    })
   })
 })
