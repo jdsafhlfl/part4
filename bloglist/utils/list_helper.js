@@ -35,6 +35,13 @@ const mostBlogs = (blogs) => {
     return arr3[0]
 }
 
+const mostLikes = (blogs) => {
+    let arr1 = _.groupBy(blogs, 'author')
+    let arr2 = _.map(arr1, (v,k) => ({author:k, likes:(_.reduce(v, function(sum,vv){return sum + vv['likes']},0))}))
+    let arr3 = _.orderBy(arr2, ['likes', 'author'], ['desc','asc'])
+    return arr3[0]
+}
+
 module.exports= {
-    dummy, totalLikes, favoriteBlog, mostBlogs
+    dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes
 }
