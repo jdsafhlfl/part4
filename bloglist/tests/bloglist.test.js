@@ -3,6 +3,74 @@ const supertest = require('supertest')
 const app = require('../app')
 
 const api = supertest(app)
+const Blog = require('../models/bloglist')
+
+const initialBlog = [
+  {
+    _id: "5a422a851b54a676234d17f7",
+    title: "React patterns",
+    author: "Michael Chan",
+    url: "https://reactpatterns.com/",
+    likes: 7,
+    __v: 0
+  },
+  {
+    _id: "5a422aa71b54a676234d17f8",
+    title: "Go To Statement Considered Harmful",
+    author: "Edsger W. Dijkstra",
+    url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+    likes: 5,
+    __v: 0
+  },
+  {
+    _id: "5a422b3a1b54a676234d17f9",
+    title: "Canonical string reduction",
+    author: "Edsger W. Dijkstra",
+    url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+    likes: 12,
+    __v: 0
+  },
+  {
+    _id: "5a422b891b54a676234d17fa",
+    title: "First class tests",
+    author: "Robert C. Martin",
+    url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+    likes: 10,
+    __v: 0
+  },
+  {
+    _id: "5a422ba71b54a676234d17fb",
+    title: "TDD harms architecture",
+    author: "Robert C. Martin",
+    url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+    likes: 0,
+    __v: 0
+  },
+  {
+    _id: "5a422bc61b54a676234d17fc",
+    title: "Type wars",
+    author: "Robert C. Martin",
+    url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+    likes: 2,
+    __v: 0
+  }
+]
+
+beforeEach(async () => {
+  await Blog.deleteMany({})
+  let blogObject = new Blog(initialBlog[0])
+  await blogObject.save()
+  blogObject = new Blog(initialBlog[1])
+  await blogObject.save()
+  blogObject = new Blog(initialBlog[2])
+  await blogObject.save()
+  blogObject = new Blog(initialBlog[3])
+  await blogObject.save()
+  blogObject = new Blog(initialBlog[4])
+  await blogObject.save()
+  blogObject = new Blog(initialBlog[5])
+  await blogObject.save()
+})
 
 test('bloglist are returned as json', async () => {
   await api
@@ -11,16 +79,16 @@ test('bloglist are returned as json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
-test('there is one blog', async () => {
+test('there are six blog', async () => {
   const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(1)
+  expect(response.body).toHaveLength(initialBlog.length)
 })
 
-test('the first blog title is hello world', async () => {
+test('the first blog title is React patterns', async () => {
   const response = await api.get('/api/blogs')
 
-  expect(response.body[0].title).toBe('hello world')
+  expect(response.body[0].title).toBe(initialBlog[0].title)
 })
 
 test('the unique identifier is id', async () => {
@@ -30,6 +98,28 @@ test('the unique identifier is id', async () => {
   expect(response.body[0]._id).not.toBeDefined()
 })
 
+test('a valid note can be added', async () => {
+  const newBlog = {
+    title: "hello world!",
+    author: "linus",
+    url: "https://****.com",
+    likes: 999
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+  const response = await api.get('/api/blogs')
+
+  const titles = response.body.map(blog => blog.title)
+
+  expect(response.body).toHaveLength(initialBlog.length + 1)
+  expect(titles).toContain(
+    'hello world!'
+  )
+})
 
 afterAll(() => {
   mongoose.connection.close()
