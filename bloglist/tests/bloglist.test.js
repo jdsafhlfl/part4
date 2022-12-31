@@ -163,6 +163,19 @@ test('required title and url when post', async () => {
 
 })
 
+test('delete one blog', async () => {
+  const deleteBlog = initialBlog[0]
+
+  await api
+    .delete(`/api/blogs/${deleteBlog._id}`)
+    .expect(204)
+  
+  const response = await api.get('/api/blogs')
+  const title = response.body.map(blog => blog.title)
+  expect(response.body).toHaveLength(initialBlog.length - 1)
+  expect(title).not.toContain('React patterns')
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
