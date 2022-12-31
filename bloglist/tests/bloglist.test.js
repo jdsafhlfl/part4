@@ -98,7 +98,7 @@ test('the unique identifier is id', async () => {
   expect(response.body[0]._id).not.toBeDefined()
 })
 
-test('a valid note can be added', async () => {
+test('a valid blog can be added', async () => {
   const newBlog = {
     title: "hello world!",
     author: "linus",
@@ -161,6 +161,19 @@ test('required title and url when post', async () => {
     .send(newBlog2)
     .expect(400)
 
+})
+
+test('update blog', async () => {
+  const updateBlog = initialBlog[1]
+  updateBlog.likes = 10
+
+  await api
+    .put(`/api/blogs/${updateBlog._id}`)
+    .send(updateBlog)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body[1].likes).toBe(10)
 })
 
 test('delete one blog', async () => {
