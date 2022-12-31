@@ -140,6 +140,29 @@ test('default likes set to 0', async () => {
 
 })
 
+test('required title and url when post', async () => {
+  const newBlog1 = {
+    author: "linus",
+    url: "https://****.com",
+  }
+
+  const newBlog2 = {
+    title: "hello world!",
+    author: "linus",
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog1)
+    .expect(400)
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog2)
+    .expect(400)
+
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
