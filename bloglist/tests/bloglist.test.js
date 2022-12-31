@@ -121,6 +121,25 @@ test('a valid note can be added', async () => {
   )
 })
 
+test('default likes set to 0', async () => {
+  const newBlog = {
+    title: "hello world!",
+    author: "linus",
+    url: "https://****.com",
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body).toHaveLength(initialBlog.length + 1)
+  expect(response.body[initialBlog.length].likes).toBe(0)
+
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
