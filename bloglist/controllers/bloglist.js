@@ -38,8 +38,18 @@ blogRouter.post('', async (request, response) => {
 })
 
 blogRouter.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndRemove(request.params.id)
-    response.status(204).end()
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {    
+        return response.status(401).json({ error: 'token missing or invalid' })  
+    }
+    const blogId = request.params.id
+    const blog = await Blog.findById(blogId)
+    if(blog.user.toString() === decodedToken.id){
+        await Blog.findByIdAndRemove(request.params.id)
+        response.status(204).end()
+    }else{
+        return response.status(403).json({error: 'Forbidden access'})
+    }
 })
 
 blogRouter.put('/:id', async (request, response) => {
