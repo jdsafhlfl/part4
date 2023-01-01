@@ -56,137 +56,144 @@ const initialBlog = [
   }
 ]
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
-  let blogObject = new Blog(initialBlog[0])
-  await blogObject.save()
-  blogObject = new Blog(initialBlog[1])
-  await blogObject.save()
-  blogObject = new Blog(initialBlog[2])
-  await blogObject.save()
-  blogObject = new Blog(initialBlog[3])
-  await blogObject.save()
-  blogObject = new Blog(initialBlog[4])
-  await blogObject.save()
-  blogObject = new Blog(initialBlog[5])
-  await blogObject.save()
-})
+describe('initial test', () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    let blogObject = new Blog(initialBlog[0])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[1])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[2])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[3])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[4])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[5])
+    await blogObject.save()
+  })
 
-test('bloglist are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+  test('bloglist are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
 
-test('there are six blog', async () => {
-  const response = await api.get('/api/blogs')
+  test('there are six blog', async () => {
+    const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlog.length)
-})
+    expect(response.body).toHaveLength(initialBlog.length)
+  })
 
-test('the first blog title is React patterns', async () => {
-  const response = await api.get('/api/blogs')
+  test('the first blog title is React patterns', async () => {
+    const response = await api.get('/api/blogs')
 
-  expect(response.body[0].title).toBe(initialBlog[0].title)
-})
+    expect(response.body[0].title).toBe(initialBlog[0].title)
+  })
 
-test('the unique identifier is id', async () => {
-  const response = await api.get('/api/blogs')
+  test('the unique identifier is id', async () => {
+    const response = await api.get('/api/blogs')
 
-  expect(response.body[0].id).toBeDefined()
-  expect(response.body[0]._id).not.toBeDefined()
-})
+    expect(response.body[0].id).toBeDefined()
+    expect(response.body[0]._id).not.toBeDefined()
+  })
 
-test('a valid blog can be added', async () => {
-  const newBlog = {
-    title: "hello world!",
-    author: "linus",
-    url: "https://****.com",
-    likes: 999
-  }
+  test('a valid blog can be added', async () => {
+    // await Blog.deleteMany({})
+    const newBlog = {
+      title: "hello world!",
+      author: "linus",
+      url: "https://****.com",
+      likes: 999,
+      userId: "63b18061daf2b878c177e37f"
+    }
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
 
-  const response = await api.get('/api/blogs')
+    const response = await api.get('/api/blogs')
 
-  const titles = response.body.map(blog => blog.title)
+    const titles = response.body.map(blog => blog.title)
 
-  expect(response.body).toHaveLength(initialBlog.length + 1)
-  expect(titles).toContain(
-    'hello world!'
-  )
-})
+    expect(response.body).toHaveLength(initialBlog.length + 1)
+    expect(titles).toContain(
+      'hello world!'
+    )
+  })
 
-test('default likes set to 0', async () => {
-  const newBlog = {
-    title: "hello world!",
-    author: "linus",
-    url: "https://****.com",
-  }
+  test('default likes set to 0', async () => {
+    const newBlog = {
+      title: "hello world!",
+      author: "linus",
+      url: "https://****.com",
+      userId: "63b18061daf2b878c177e37f"
+    }
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
 
-  const response = await api.get('/api/blogs')
+    const response = await api.get('/api/blogs')
 
-  expect(response.body).toHaveLength(initialBlog.length + 1)
-  expect(response.body[initialBlog.length].likes).toBe(0)
+    expect(response.body).toHaveLength(initialBlog.length + 1)
+    expect(response.body[initialBlog.length].likes).toBe(0)
 
-})
+  })
 
-test('required title and url when post', async () => {
-  const newBlog1 = {
-    author: "linus",
-    url: "https://****.com",
-  }
+  test('required title and url when post', async () => {
+    const newBlog1 = {
+      author: "linus",
+      url: "https://****.com",
+      userId: "63b18061daf2b878c177e37f"
+    }
 
-  const newBlog2 = {
-    title: "hello world!",
-    author: "linus",
-  }
+    const newBlog2 = {
+      title: "hello world!",
+      author: "linus",
+      userId: "63b18061daf2b878c177e37f"
+    }
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog1)
-    .expect(400)
+    await api
+      .post('/api/blogs')
+      .send(newBlog1)
+      .expect(400)
 
-  await api
-    .post('/api/blogs')
-    .send(newBlog2)
-    .expect(400)
+    await api
+      .post('/api/blogs')
+      .send(newBlog2)
+      .expect(400)
 
-})
+  })
 
-test('update blog', async () => {
-  const updateBlog = initialBlog[1]
-  updateBlog.likes = 10
+  test('update blog', async () => {
+    const updateBlog = initialBlog[1]
+    updateBlog.likes = 10
 
-  await api
-    .put(`/api/blogs/${updateBlog._id}`)
-    .send(updateBlog)
+    await api
+      .put(`/api/blogs/${updateBlog._id}`)
+      .send(updateBlog)
 
-  const response = await api.get('/api/blogs')
+    const response = await api.get('/api/blogs')
 
-  expect(response.body[1].likes).toBe(10)
-})
+    expect(response.body[1].likes).toBe(10)
+  })
 
-test('delete one blog', async () => {
-  const deleteBlog = initialBlog[0]
+  test('delete one blog', async () => {
+    const deleteBlog = initialBlog[0]
 
-  await api
-    .delete(`/api/blogs/${deleteBlog._id}`)
-    .expect(204)
-  
-  const response = await api.get('/api/blogs')
-  const title = response.body.map(blog => blog.title)
-  expect(response.body).toHaveLength(initialBlog.length - 1)
-  expect(title).not.toContain('React patterns')
+    await api
+      .delete(`/api/blogs/${deleteBlog._id}`)
+      .expect(204)
+
+    const response = await api.get('/api/blogs')
+    const title = response.body.map(blog => blog.title)
+    expect(response.body).toHaveLength(initialBlog.length - 1)
+    expect(title).not.toContain('React patterns')
+  })
 })
 
 afterAll(() => {
