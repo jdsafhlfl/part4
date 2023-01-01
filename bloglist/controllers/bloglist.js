@@ -12,12 +12,12 @@ blogRouter.get('', async (request, response) => {
 
 blogRouter.post('', async (request, response) => {
     const body = request.body
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {    
-        return response.status(401).json({ error: 'token missing or invalid' })  
+    const userID = request.user
+    const user = await User.findById(userID)
+    if(!user){
+        response.status(401).json({error:'unauthorized user'})
     }
-    const userID = decodedToken.id
-    const user = await User.findOne({ userID })
+    console.log(user)
     if (!body.likes) body.likes = 0
     if (body.title && body.url) {
         const blog = new Blog({
@@ -38,14 +38,20 @@ blogRouter.post('', async (request, response) => {
 })
 
 blogRouter.delete('/:id', async (request, response) => {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if (!decodedToken.id) {    
-        return response.status(401).json({ error: 'token missing or invalid' })  
-    }
+
     const blogId = request.params.id
     const blog = await Blog.findById(blogId)
-    if(blog.user.toString() === decodedToken.id){
+    const userID = request.user
+    if(!blog){
+        response.status(400).json({error: 'bad request: the item has beem removed'})
+    }
+    else if(blog.user.toString() === userID){
         await Blog.findByIdAndRemove(request.params.id)
+        const user = await User.findById(userID)
+        // console.log(user.blogs)
+        user.blogs = user.blogs.filter(blog => blog.toString() !== blogId)
+        // console.log(user.blogs)
+        user.save()
         response.status(204).end()
     }else{
         return response.status(403).json({error: 'Forbidden access'})
