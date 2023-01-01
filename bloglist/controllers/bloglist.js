@@ -3,14 +3,14 @@ const Blog = require('../models/bloglist')
 const User = require('../models/user')
 
 const jwt = require('jsonwebtoken')
-
+const middleware = require('../utils/middleware')
 
 blogRouter.get('', async (request, response) => {
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
     response.json(blogs)
 })
 
-blogRouter.post('', async (request, response) => {
+blogRouter.post('', middleware.userExtractor, async (request, response) => {
     const body = request.body
     const userID = request.user
     const user = await User.findById(userID)
@@ -37,7 +37,7 @@ blogRouter.post('', async (request, response) => {
 
 })
 
-blogRouter.delete('/:id', async (request, response) => {
+blogRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
 
     const blogId = request.params.id
     const blog = await Blog.findById(blogId)

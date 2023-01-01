@@ -196,6 +196,65 @@ describe('initial test', () => {
   })
 })
 
+describe("token added verification for post", () => {
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    let blogObject = new Blog(initialBlog[0])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[1])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[2])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[3])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[4])
+    await blogObject.save()
+    blogObject = new Blog(initialBlog[5])
+    await blogObject.save()
+  })
+
+  test('valid add', async () => {
+    const newBlog = {
+      title: "hello world!",
+      author: "linus",
+      url: "https://****.com",
+    }
+
+    const user = {username:'root', password:"secret"}
+    const token_response = await api.post('/api/login').send(user)
+    const token = token_response.text.split(',')[0].split("\"")[3]
+
+    await api
+      .post('/api/blogs')
+      .set('Authorization','Bearer '+token)
+      .send(newBlog)
+      .expect(201)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(initialBlog.length + 1)
+    expect(response.body[initialBlog.length].likes).toBe(0)
+    expect(response.body[initialBlog.length].author).toBe("linus")
+
+  })
+  test('invalid add', async () => {
+    const newBlog = {
+      title: "hello world!",
+      author: "linus",
+      url: "https://****.com",
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body).toHaveLength(initialBlog.length)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
